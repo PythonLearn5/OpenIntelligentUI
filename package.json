@@ -21,7 +21,6 @@
     "concurrently": "^9.1.2",
     "rimraf": "^6.0.0"
   },
-  "packageManager": "yarn@4.5.0",
   "resolutions": {
     "esbuild": "^0.27.3"
   }
