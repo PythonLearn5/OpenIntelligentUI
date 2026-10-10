@@ -98,7 +98,16 @@ class CredentialScopedAgent(LangGraphAGUIAgent):
 
 async def validate_credentials(credentials):
     """Exercise both APIs; never forward their response bodies or exceptions."""
+    from src.model import provider_base_url
     from src.visualization_router import JEV_URL, request_options
+
+    # Use the resolved OpenAI target (official / provider override / gateway).
+    openai_base = provider_base_url("openai")
+    # If a gateway override is in use, keep the same URL path shape that
+    # OpenAI clients expect (gateways forward the suffix internally).
+    if not openai_base.endswith("/"):
+        openai_base += "/"
+    openai_validate_url = openai_base + "chat/completions"
 
     async def check(provider, url, options):
         try:
@@ -115,7 +124,7 @@ async def validate_credentials(credentials):
     token = current_credentials.set(credentials)
     try:
         results = await asyncio.gather(
-            check('openai', 'https://api.openai.com/v1/chat/completions', {
+            check('openai', openai_validate_url, {
                 'headers': {'Authorization': f'Bearer {credentials.openai}'},
                 'json': {'model': 'chat-latest', 'messages': [{'role': 'user', 'content': 'Reply OK.'}], 'max_completion_tokens': 8},
             }),

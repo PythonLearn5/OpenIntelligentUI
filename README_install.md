@@ -34,7 +34,23 @@ cd OpenIntelligentUI
 ### 2. 启用 Corepack 并安装依赖
 
 ```bash
+# 1. 进入项目目录（必须在项目根目录执行）
+cd d:\GITHUB_tmp\OpenIntelligentUI
+
+# 2. 用 Corepack 激活 Yarn Berry（推荐稳定版 4.x）
 corepack enable
+corepack prepare yarn@stable --activate
+
+# 3. 验证版本（应显示 4.x.x）
+yarn --version
+# 如果仍显示 1.22.22，说明 PATH 中全局 yarn.ps1 优先级更高，
+# 可以临时绕过：
+#   corepack yarn --version
+
+# 4. 在本项目初始化 Berry（会生成 .yarnrc.yml 和 .yarn/ 目录）
+yarn set version berry
+
+# 5. 安装依赖（会自动识别 workspace:*）
 yarn install
 ```
 
@@ -46,8 +62,9 @@ yarn install
 
 ### 3. 配置 Agent 环境变量
 
-创建 `apps/agent/.env` 文件并填入 API Key：
+创建 `apps/agent/.env` 文件并填入 API Key。你可以选择 **直连官方 Provider**（最简单）或 **统一走 Vercel AI Gateway**（推荐做统一路由/鉴权/观测的场景）。
 
+#### 方式 A：直连 Provider（默认方式）
 ```dotenv
 # ====== 对话模型（二选一）======
 # 方案 A：使用 OpenAI（默认 LLM_MODEL=chat-latest 走 OpenAI）
@@ -62,6 +79,40 @@ LLM_MODEL=chat-latest
 TYPESAFE_API_KEY=ts-xxxxxxxxxxxx
 JEV_MODEL=jev-latest
 ```
+
+#### 方式 B：通过 Vercel AI Gateway（或兼容网关）统一接入
+
+当所有流量都需要通过统一网关（便于审计、限流、模型路由切换）时，只需设置 `AI_GATEWAY_URL`；无需修改请求代码，三个 Provider（OpenAI / Anthropic / Jev TypeSafe）的请求会自动改走该网关入口：
+
+```dotenv
+# ====== 必需：Provider API Key（与直连方式一致，网关内部转发时使用）======
+OPENAI_API_KEY=sk-xxxxxxxxxxxxxxxx
+LLM_MODEL=chat-latest
+TYPESAFE_API_KEY=ts-xxxxxxxxxxxx
+JEV_MODEL=jev-latest
+
+# ====== Vercel AI Gateway 入口 ======
+# 示例：官方托管
+AI_GATEWAY_URL=https://gateway.ai-sdk.com/v1
+
+# 或自建 / 兼容代理（如 Cloudflare AI Gateway、Azure OpenAI 代理等）
+# AI_GATEWAY_URL=https://<your-gateway-host>/v1
+```
+
+如果只需要为**某个 Provider**单独走代理/网关，而不是全局走网关，使用更细粒度的覆盖变量：
+
+```dotenv
+# 只为 OpenAI 走网关（其余 Provider 仍直连官方）
+OPENAI_BASE_URL=https://<your-openai-gateway>/v1
+
+# 只为 Anthropic 走网关
+# ANTHROPIC_BASE_URL=https://<your-anthropic-gateway>
+
+# 只为 Jev 可视化路由走网关
+# TYPESAFE_BASE_URL=https://<your-jev-gateway>/v1/systemone
+```
+
+> ⚠️ **优先级顺序**：`*_BASE_URL`（单独覆盖） > `AI_GATEWAY_URL`（共享网关） > 官方 Provider 端点。
 
 > 💡 **不填密钥也能启动**：聊天界面会要求用户在浏览器中临时输入密钥（BYOK 模式），密钥仅保留在当前会话内存中，刷新即清除。
 

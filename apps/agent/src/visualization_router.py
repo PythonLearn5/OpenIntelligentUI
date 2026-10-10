@@ -1,4 +1,9 @@
-"""Jev selects presentation; the chat model supplies the answer and UI content."""
+"""Jev selects presentation; the chat model supplies the answer and UI content.
+
+``JEV_URL`` is resolved at import time (supports TYPESAFE_BASE_URL and the shared
+``AI_GATEWAY_URL`` override through the shared provider_base_url helper in ``src.model``.
+When these env vars are absent the documented TypeSafe canonical production endpoint is used.
+"""
 
 import hashlib
 import json
@@ -11,7 +16,21 @@ from langchain.agents.middleware import AgentMiddleware
 from langchain_core.messages import SystemMessage
 from pydantic import BaseModel, Field, ValidationError
 
-JEV_URL = "https://api.typesafe.ai/v1/systemone"
+
+def _jev_endpoint():
+    # Defer the import so the module is usable from tests without circular imports.
+    try:
+        from src.model import provider_base_url
+    except ImportError:  # pragma: no cover - fallback for unusual test harnesses
+        provider_base_url = None  # type: ignore[assignment]
+    if provider_base_url is None:  # pragma: no cover - fallthrough
+            return "https://api.typesafe.ai/v1/systemone"
+    # Jev is the caller supplies a direct override or shared gateway
+    url = provider_base_url("typesafe")
+    return url or "https://api.typesafe.ai/v1/systemone"
+
+
+JEV_URL = _jev_endpoint()
 VISUALIZATIONS = {
     "text": "Direct facts, prose, writing, code, conversation, or a clarification; no visual needed.",
     "table": "Basic table: exact values, records, simple side-by-side comparison; no custom interaction.",

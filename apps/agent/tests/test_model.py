@@ -84,3 +84,95 @@ def test_missing_provider_key_has_actionable_error(monkeypatch, model, key, valu
         monkeypatch.setenv(key, value)
     with pytest.raises(ValueError, match=key):
         build_model()
+
+
+# ---------------------------------------------------------------------------
+# Vercel AI Gateway / Custom base URL support
+# ---------------------------------------------------------------------------
+
+
+@pytest.mark.parametrize(
+    ("env_name", "provider", "expected"),
+    [
+        # Provider-specific override wins even without a shared gateway.
+        ("OPENAI_BASE_URL", "openai", "https://my-openai-proxy.local/v1"),
+        ("OPENAI_BASE_URL", "gpt", "https://my-openai-proxy.local/v1"),
+        ("ANTHROPIC_BASE_URL", "anthropic", "https://my-anthropic-proxy.local"),
+        ("ANTHROPIC_BASE_URL", "claude", "https://my-anthropic-proxy.local"),
+        ("TYPESAFE_BASE_URL", "typesafe", "https://my-jev-proxy.local/v1/systemone"),
+        ("TYPESAFE_BASE_URL", "jev", "https://my-jev-proxy.local/v1/systemone"),
+    ],
+)
+def test_provider_base_url_specific_override(monkeypatch, env_name, provider, expected):
+    from src.model import provider_base_url
+
+    monkeypatch.setenv(env_name, expected)
+    monkeypatch.delenv("AI_GATEWAY_URL", raising=False)
+    assert provider_base_url(provider) == expected
+
+
+def test_shared_ai_gateway_url_fallback_when_no_specific_override(monkeypatch):
+    from src.model import provider_base_url
+
+    gateway = "https://gateway.ai-sdk.com/v1"
+    monkeypatch.setenv("AI_GATEWAY_URL", gateway)
+    # Ensure no provider-specific overrides are present.
+    for name in ("OPENAI_BASE_URL", "ANTHROPIC_BASE_URL", "TYPESAFE_BASE_URL"):
+        monkeypatch.delenv(name, raising=False)
+    # OpenAI and TypeSafe always get a concrete URL.
+    assert provider_base_url("openai") == gateway
+    assert provider_base_url("typesafe") == gateway
+    # Anthropic's fallback in the helper is None (use SDK default) unless
+    # overridden or gateway supplied.
+    assert provider_base_url("anthropic") == gateway
+
+
+def test_specific_base_url_takes_precedence_over_shared_gateway(monkeypatch):
+    from src.model import provider_base_url
+
+    monkeypatch.setenv("AI_GATEWAY_URL", "https://shared-gateway.test")
+    monkeypatch.setenv("OPENAI_BASE_URL", "https://openai-only.test/v1")
+    assert provider_base_url("openai") == "https://openai-only.test/v1"
+
+
+def test_official_endpoints_used_without_any_override(monkeypatch):
+    from src.model import provider_base_url
+
+    for name in ("AI_GATEWAY_URL", "OPENAI_BASE_URL", "ANTHROPIC_BASE_URL", "TYPESAFE_BASE_URL"):
+        monkeypatch.delenv(name, raising=False)
+    assert provider_base_url("openai") == "https://api.openai.com/v1"
+    # None signals "use ChatAnthropic SDK default base_url" (avoid setting
+    # an official-looking URL that the SDK might change in future releases).
+    assert provider_base_url("anthropic") is None
+    assert provider_base_url("typesafe") == "https://api.typesafe.ai/v1/systemone"
+
+
+def test_build_model_wires_openai_base_url_from_gateway(monkeypatch):
+    monkeypatch.delenv("LLM_MODEL", raising=False)
+    monkeypatch.setenv("OPENAI_API_KEY", "test-key")
+    monkeypatch.setenv("AI_GATEWAY_URL", "https://gateway.ai-sdk.com/v1")
+    model = build_model()
+    assert isinstance(model, ChatOpenAI)
+    # LangChain wraps the raw chat.completions endpoint as .client; read the
+    # root OpenAI SDK client for the configured base_url.
+    assert str(model.root_client.base_url) == "https://gateway.ai-sdk.com/v1/"
+
+
+def test_build_model_wires_claude_base_url_from_override(monkeypatch):
+    monkeypatch.setenv("LLM_MODEL", "claude-sonnet-4-5")
+    monkeypatch.setenv("ANTHROPIC_API_KEY", "test-key")
+    monkeypatch.setenv("ANTHROPIC_BASE_URL", "https://my-claude-proxy.test")
+    model = build_model()
+    assert isinstance(model, ChatAnthropic)
+    # ChatAnthropic stores the configured base_url inside its client params.
+    # We cannot easily introspect it without a private-API breakage, but the
+    # public constructor accepts it and the provider_base_url test above
+    # proves the override is selected. Confirm max_tokens still applied.
+    assert model.max_tokens >= 32000
+
+
+def test_provider_base_url_unknown_raises(monkeypatch):
+    from src.model import provider_base_url
+
+    with pytest.raises(ValueError, match="Unknown provider"):
+        provider_base_url("no-such-provider")

@@ -17,11 +17,12 @@
     "clean": "turbo run clean"
   },
   "devDependencies": {
-    "turbo": "^2.5.4",
     "concurrently": "^9.1.2",
-    "rimraf": "^6.0.0"
+    "rimraf": "^6.0.0",
+    "turbo": "^2.5.4"
   },
   "resolutions": {
     "esbuild": "^0.27.3"
-  }
+  },
+  "packageManager": "yarn@4.18.1"
 }
