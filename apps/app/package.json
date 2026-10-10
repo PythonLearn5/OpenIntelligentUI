@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "next dev --turbopack",
-    "build": "pnpm --filter @repo/design-system build && next build",
+    "build": "yarn workspace @repo/design-system build && next build",
     "start": "next start",
     "lint": "eslint .",
     "test": "vitest run"

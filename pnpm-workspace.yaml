@@ -1,4 +1,0 @@
-packages:
-  - "apps/app"
-  - "apps/mcp"
-  - "packages/*"

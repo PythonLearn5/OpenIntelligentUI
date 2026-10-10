@@ -1,4 +1,4 @@
-# Dockerfile for Next.js App
+﻿# Dockerfile for Next.js App
 FROM node:22-alpine AS base
 
 # Install dependencies only when needed
@@ -7,18 +7,18 @@ RUN apk add --no-cache libc6-compat
 
 WORKDIR /app
 
-# Install pnpm
-RUN corepack enable && corepack prepare pnpm@latest --activate
+# Install yarn (matches packageManager field)
+RUN corepack enable && corepack prepare yarn@4.5.0 --activate
 
 # Copy package files (every workspace manifest the app depends on must be
-# present or pnpm install fails to resolve workspace:* dependencies)
-COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
+# present or yarn install fails to resolve workspace:* dependencies)
+COPY package.json yarn.lock ./
 COPY apps/app/package.json ./apps/app/
 COPY packages/design-system/package.json ./packages/design-system/
 COPY turbo.json ./
 
 # Install dependencies
-RUN pnpm install --frozen-lockfile
+RUN yarn install --immutable
 
 # Build the application
 FROM base AS builder
@@ -32,12 +32,12 @@ COPY --from=deps /app/packages/design-system/node_modules ./packages/design-syst
 # Copy source code
 COPY . .
 
-# Enable pnpm
-RUN corepack enable && corepack prepare pnpm@latest --activate
+# Enable yarn
+RUN corepack enable && corepack prepare yarn@4.5.0 --activate
 
 # Build the Next.js app and its workspace dependencies (turbo's build task
 # dependsOn ^build, so @repo/design-system dist/ is produced first)
-RUN pnpm exec turbo run build --filter=@repo/app
+RUN yarn exec turbo run build --filter=@repo/app
 
 # Production image
 FROM base AS runner

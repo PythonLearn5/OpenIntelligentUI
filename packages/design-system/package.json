@@ -16,7 +16,7 @@
     "build": "tsc",
     "lint": "tsc --noEmit",
     "test": "vitest run",
-    "clean": "rm -rf dist"
+    "clean": "rimraf dist"
   },
   "devDependencies": {
     "@types/node": "^20",

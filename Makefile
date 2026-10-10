@@ -4,7 +4,7 @@ help: ## Show this help message
 	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-15s\033[0m %s\n", $$1, $$2}'
 
 install: ## Install all dependencies (Node + Python)
-	pnpm install
+	yarn install
 
 setup: install ## Full setup: install deps and create .env from template
 	@if [ ! -f apps/agent/.env ]; then \
@@ -15,22 +15,22 @@ setup: install ## Full setup: install deps and create .env from template
 	fi
 
 dev: ## Start all services (frontend + agent + mcp)
-	pnpm dev
+	yarn dev
 
 dev-app: ## Start Next.js frontend only (http://localhost:3000)
-	pnpm dev:app
+	yarn dev:app
 
 dev-agent: ## Start LangGraph agent only (http://localhost:8123)
-	pnpm dev:agent
+	yarn dev:agent
 
 dev-mcp: ## Start MCP server only
-	pnpm dev:mcp
+	yarn dev:mcp
 
 build: ## Build all apps
-	pnpm build
+	yarn build
 
 lint: ## Lint all apps
-	pnpm lint
+	yarn lint
 
 clean: ## Clean build artifacts
-	pnpm clean
+	yarn clean

@@ -32,14 +32,14 @@ jobs:
         with:
           node-version: ${{ matrix.node }}
 
-      - name: Install pnpm
-        uses: pnpm/action-setup@b906affcce14559ad1aafd4ab0e942779e9f58b1 # v4
+      - name: Enable Corepack
+        run: corepack enable
 
       - name: Install dependencies (monorepo)
-        run: pnpm install
+        run: yarn install
 
       - name: Build all apps
-        run: pnpm build
+        run: yarn build
 
       - name: Create empty .env file
         run: touch .env
@@ -48,7 +48,7 @@ jobs:
         if: runner.os != 'Windows'
         run: |
           # Start the Next.js frontend in background
-          pnpm --filter app start &
+          yarn workspace @repo/app start &
           FRONTEND_PID=$!
 
           # Wait for frontend to start (max 30 seconds)
@@ -66,7 +66,7 @@ jobs:
             fi
           done
 
-          # Clean up background process (ignore SIGTERM exit code from pnpm)
+          # Clean up background process (ignore SIGTERM exit code from yarn)
           kill $FRONTEND_PID 2>/dev/null || true
           wait $FRONTEND_PID 2>/dev/null || true
 
@@ -80,7 +80,7 @@ jobs:
         if: runner.os == 'Windows'
         run: |
           # Start the Next.js frontend in background
-          pnpm --filter app start &
+          yarn workspace @repo/app start &
 
           # Wait for frontend to start (max 30 seconds)
           $timeout = 30
@@ -121,17 +121,17 @@ jobs:
         with:
           node-version: 22
 
-      - name: Install pnpm
-        uses: pnpm/action-setup@b906affcce14559ad1aafd4ab0e942779e9f58b1 # v4
+      - name: Enable Corepack
+        run: corepack enable
 
       - name: Install dependencies
-        run: pnpm install
+        run: yarn install
 
       - name: Run linting
-        run: pnpm lint
+        run: yarn lint
 
       - name: Run tests
-        run: pnpm test
+        run: yarn test
 
   agent-tests:
     name: Agent tests (pytest)

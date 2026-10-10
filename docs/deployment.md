@@ -9,7 +9,7 @@ The repository's `render.yaml` defines two services:
 | Service                    | Runtime and root            | Build                                                                                                  | Start / health                                                   |
 | -------------------------- | --------------------------- | ------------------------------------------------------------------------------------------------------ | ---------------------------------------------------------------- |
 | `open-generative-ui-agent` | Python 3.12.6, `apps/agent` | `pip install uv && uv sync`                                                                            | `uv run uvicorn main:app --host 0.0.0.0 --port $PORT`, `/health` |
-| `open-generative-ui-app`   | Node 22, repository root    | `corepack enable && pnpm install --no-frozen-lockfile && pnpm exec turbo run build --filter=@repo/app` | `pnpm --filter @repo/app start`, `/api/health`                   |
+| `open-generative-ui-app`   | Node 22, repository root    | `corepack enable && yarn install --immutable && yarn exec turbo run build --filter=@repo/app` | `yarn workspace @repo/app start`, `/api/health`                   |
 
 For shared credentials, the blueprint and Python factory default to `LLM_MODEL=chat-latest`, using `OPENAI_API_KEY`. Jev visualization routing uses `TYPESAFE_API_KEY`; `JEV_MODEL` defaults to `jev-latest`. Verify access to the selected model before launch; a configured model name does not prove availability.
 
@@ -50,9 +50,9 @@ Supply the provider key and optional `LLM_MODEL` in that service's environment. 
 
 ```bash
 corepack enable
-pnpm install --frozen-lockfile
-pnpm exec turbo run build --filter=@repo/app
-LANGGRAPH_DEPLOYMENT_URL=http://your-agent-host:8123 pnpm --filter @repo/app start
+yarn install --immutable
+yarn exec turbo run build --filter=@repo/app
+LANGGRAPH_DEPLOYMENT_URL=http://your-agent-host:8123 yarn workspace @repo/app start
 ```
 
 Use a reachable agent URL appropriate to your network. Expose the frontend through your host's normal HTTPS routing. The optional MCP server is a separate deployment; see its [guide](../apps/mcp/README.md). A frontend Dockerfile is available at `docker/Dockerfile.app`.
@@ -63,10 +63,10 @@ Use a reachable agent URL appropriate to your network. Expose the frontend throu
 2. Run the automated checks from the repository root:
 
    ```bash
-   pnpm test
+   yarn test
    uv run --directory apps/agent pytest
-   pnpm lint
-   pnpm build
+   yarn lint
+   yarn build
    ```
 
    Turbo builds shared dependencies for workspace checks. For isolated MCP tests, build `@repo/design-system` first.

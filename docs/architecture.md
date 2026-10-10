@@ -11,7 +11,7 @@ Open Generative UI combines a Python agent with a CopilotKit runtime and a brows
 | `apps/mcp/`               | Optional standalone MCP resources and HTML assembler      |
 | `packages/design-system/` | Shared theme, SVG classes, and form styles                |
 
-Node packages use pnpm/Turborepo. The Python agent uses uv.
+Node packages use yarn/Turborepo. The Python agent uses uv.
 
 ## Request flow
 

@@ -2,7 +2,7 @@
 
 **Answers you can interact with**, by [CopilotKit](https://copilotkit.ai). The agent chooses text, native components, or custom interactive answers to help people understand, compare, and make tools.
 
-Local prerequisites: Node.js 22+, pnpm 9+, Python 3.12+, uv, an OpenAI key for the default `chat-latest` answer model, and a TypeSafe key for Jev visualization routing. `claude-*` overrides use Anthropic instead of OpenAI.
+Local prerequisites: Node.js 22+, yarn 4.5+ (via corepack), Python 3.12+, uv, an OpenAI key for the default `chat-latest` answer model, and a TypeSafe key for Jev visualization routing. `claude-*` overrides use Anthropic instead of OpenAI.
 
 | Guide                                                | Description                                            |
 | ---------------------------------------------------- | ------------------------------------------------------ |

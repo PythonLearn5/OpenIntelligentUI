@@ -7,21 +7,29 @@ WORKDIR /app
 RUN apk add --no-cache python3 make g++
 
 # Copy package files
-COPY package.json pnpm-lock.yaml ./
+COPY package.json ./
 
-# Install pnpm
-RUN npm install -g pnpm@9
+# Enable corepack + yarn (monorepo uses @repo/design-system workspace dep)
+RUN corepack enable && corepack prepare yarn@4.5.0 --activate
 
-# Install dependencies
-RUN pnpm install --frozen-lockfile
+# Copy workspace manifests required by yarn workspaces
+COPY ../../package.json ../../yarn.lock /workspace-root/
+COPY ../../packages/design-system/package.json /workspace-root/packages/design-system/
 
-# Copy source
+# Install dependencies (MCP + design-system workspace links)
+WORKDIR /workspace-root
+RUN yarn workspaces focus open-intelligent-ui-mcp
+
+# Copy MCP source
+WORKDIR /app
 COPY tsconfig.json ./
 COPY src ./src
 COPY skills ./skills
+# Symlink back design-system dist for the build (focus step copied node_modules)
+RUN ln -s /workspace-root/node_modules ./node_modules
 
 # Build
-RUN pnpm build
+RUN yarn build
 
 # Production image
 FROM node:20-alpine

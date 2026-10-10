@@ -34,7 +34,7 @@ The MCP server lives in `apps/mcp/`.
 make dev-mcp     # Starts on http://localhost:3100
 
 # Or directly
-cd apps/mcp && pnpm dev
+cd apps/mcp && yarn dev
 ```
 
 ### Environment Variables
@@ -94,7 +94,7 @@ For the stdio transport (Claude Desktop integration), add to your `claude_deskto
 Build first:
 
 ```bash
-cd apps/mcp && pnpm build
+cd apps/mcp && yarn build
 ```
 
 ## Using with HTTP Clients (Claude Code, Cursor)

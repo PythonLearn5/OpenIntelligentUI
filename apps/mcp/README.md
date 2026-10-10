@@ -14,7 +14,7 @@ A standalone, independently deployable [Model Context Protocol](https://modelcon
 
 ### Prerequisites
 - Node.js >= 18
-- pnpm or npm
+- yarn via corepack (`corepack enable`) or npm
 
 ### Installation
 
@@ -22,11 +22,12 @@ A standalone, independently deployable [Model Context Protocol](https://modelcon
 # Navigate to the MCP package
 cd apps/mcp
 
-# Install dependencies
-pnpm install
+# Install dependencies (install from monorepo root: `cd ../.. && yarn install`)
+# Or standalone via npm:
+# npm install
 
 # Start the development server
-pnpm dev
+yarn dev
 # → MCP server running on http://localhost:3100/mcp
 
 # Health check
@@ -37,8 +38,8 @@ curl http://localhost:3100/health
 ### Build for Production
 
 ```bash
-pnpm build
-pnpm start
+yarn build
+yarn start
 ```
 
 ## Configuration
@@ -66,7 +67,7 @@ LOG_LEVEL=info
 Claude Desktop uses stdio transport. Build first, then add to your `claude_desktop_config.json`:
 
 ```bash
-pnpm build
+yarn build
 ```
 
 ```json
@@ -107,12 +108,12 @@ Add to `.mcp.json`:
 }
 ```
 
-Then start the HTTP server with `pnpm dev`.
+Then start the HTTP server with `yarn dev`.
 
 ### Any MCP Client
 
-- **stdio**: Run `node dist/stdio.js` (or `pnpm start:stdio`)
-- **HTTP**: Connect to `http://localhost:3100/mcp` (start with `pnpm dev` or `pnpm start`)
+- **stdio**: Run `node dist/stdio.js` (or `yarn start:stdio`)
+- **HTTP**: Connect to `http://localhost:3100/mcp` (start with `yarn dev` or `yarn start`)
 
 ## API Reference
 

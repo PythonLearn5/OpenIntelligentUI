@@ -32,11 +32,11 @@ Use the existing validated `Websandbox.connection.remote.sendPrompt({ text })` a
 The local default model is `chat-latest` (ChatGPT Instant). `claude-*` requires `ANTHROPIC_API_KEY`; `chat-latest` and `gpt-*` require `OPENAI_API_KEY`. Jev routing requires `TYPESAFE_API_KEY`. Do not invent native model APIs or silently change pinned model IDs. See `render.yaml` for its separate explicit deployment model setting.
 
 ```bash
-pnpm install
-pnpm test
+yarn install
+yarn test
 uv run --directory apps/agent pytest
-pnpm lint
-pnpm build
+yarn lint
+yarn build
 ```
 
 Use focused tests while developing, then relevant workspace checks. Inspect the [launch workflow](docs/deployment.md#verification-and-launch) for browser and live-provider validation. A rendered chat shell does not prove AI generation works. Keep secrets out of source, generated UI, logs, and screenshots. Do not describe a local build as a deployed release.

@@ -44,10 +44,10 @@ This is a **Turborepo monorepo** with a Next.js frontend and a LangGraph Python 
 ### 1) Install Prerequisites
 
 - Node.js 20.x or later
-- pnpm v9.x installed globally (`npm i -g pnpm@^9`)
+- yarn 4.5+ via `corepack enable` (no global install required)
 - Python 3.11+ (for the agent)
 
-> **Windows users:** Enable **Developer Mode** (Settings > System > For developers > Developer Mode → On) to allow symlink creation. This is required for Next.js standalone builds and pnpm to work correctly.
+> **Windows users:** Enable **Developer Mode** (Settings > System > For developers > Developer Mode → On) to allow symlink creation. This is required for Next.js standalone builds and yarn workspaces to work correctly.
 
 ### 2) Install Dependencies and Set Up
 
@@ -60,7 +60,7 @@ make setup    # Installs deps + creates .env template
 Or manually:
 
 ```bash
-pnpm install
+yarn install
 echo 'ANTHROPIC_API_KEY=your-key-here' > apps/agent/.env
 ```
 
@@ -80,12 +80,12 @@ make dev-agent  # LangGraph agent on http://localhost:8123
 make dev-mcp    # MCP server
 ```
 
-You can also use `pnpm` directly:
+You can also use `yarn` directly:
 
 ```bash
-pnpm dev          # All services
-pnpm dev:app      # Frontend only
-pnpm dev:agent    # Agent only
+yarn dev          # All services
+yarn dev:app      # Frontend only
+yarn dev:agent    # Agent only
 ```
 
 ### 4) Build and Lint

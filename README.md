@@ -137,7 +137,7 @@ These starters run the agent; they are not prerecorded responses. Jev chooses th
 
 ## Get started
 
-Prerequisites: Node.js 22+, pnpm 9+, Python 3.12+, and [uv](https://docs.astral.sh/uv/).
+Prerequisites: Node.js 22+, yarn 4.5+ (via corepack), Python 3.12+, and [uv](https://docs.astral.sh/uv/).
 
 ```bash
 git clone https://github.com/CopilotKit/OpenIntelligentUI.git
@@ -183,7 +183,7 @@ packages/design-system/  Shared theme, SVG, and form styles
 make dev-app     # Frontend
 make dev-agent   # Agent
 make dev-mcp     # Optional MCP server
-pnpm test       # JavaScript workspace tests
+yarn test       # JavaScript workspace tests
 uv run --directory apps/agent pytest
 make lint
 make build

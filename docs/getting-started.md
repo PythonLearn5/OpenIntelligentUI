@@ -1,6 +1,6 @@
 # Getting started
 
-Run Open Intelligent UI by CopilotKit locally with Node.js 22+, pnpm 9+, Python 3.12+, and [uv](https://docs.astral.sh/uv/).
+Run Open Intelligent UI by CopilotKit locally with Node.js 22+, yarn 4.5+ (via corepack), Python 3.12+, and [uv](https://docs.astral.sh/uv/).
 
 ## Install
 
@@ -63,7 +63,7 @@ A health response confirms process availability; only a real prompt tests provid
 make dev-app
 make dev-agent
 make dev-mcp
-pnpm test
+yarn test
 uv run --directory apps/agent pytest
 make lint
 make build
